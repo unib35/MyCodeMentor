@@ -102,25 +102,6 @@ AI 팀장님은 다음과 같은 리뷰를 제공합니다:
 └── README.md               # 사용 설명서
 ```
 
-### 개발 계획
-1. MVP Setup ✅
-   - 기본 GitHub Actions 워크플로우
-   - 기본 GPT 코드 리뷰
-   - PR 코멘트 게시
-
-2. File Exclusion & Label Handling ✅
-   - 파일 제외 패턴 구현
-   - 리뷰 스킵 라벨 처리
-
-3. Line-by-line Comments ✅
-   - 코드 청크 기반 리뷰
-   - 라인별 코멘트 게시
-
-4. Additional Checks & Notifications ✅
-   - 코드 스타일 검사
-   - Slack 알림 통합
-   - Discord 알림 통합
-
 ## 🤝 기여하기
 
 버그 리포트나 기능 제안은 Issue를 통해 해주세요. Pull Request도 환영합니다!
