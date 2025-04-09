@@ -1,0 +1,25 @@
+name: AI CodeMentor Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: AI Code Review
+        uses: your-org/ai-codementor@main
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          # 아래 설정은 선택사항입니다
+          # slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          # slack_channel: '#code-reviews'
+          # discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # model: 'gpt-4' # 기본값: gpt-4
+          # skip_labels: 'no-ai-review,skip-review' # 기본값
+          # exclude_patterns: 'docs/*.md,.github/*,requirements.txt,README.md' # 기본값 
