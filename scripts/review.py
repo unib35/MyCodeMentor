@@ -10,18 +10,13 @@ from discord_service import DiscordService
 
 class ReviewConfig:
     # 제외할 파일 패턴
-    EXCLUDE_PATTERNS = [
-        r'^docs/.*\.md$',  # docs 폴더의 모든 마크다운 파일
-        r'^\.github/.*$',  # .github 폴더의 모든 파일
-        r'^requirements\.txt$',  # requirements.txt
-        r'^README\.md$',  # README.md
-    ]
+    EXCLUDE_PATTERNS = [p.strip() for p in os.getenv('EXCLUDE_PATTERNS', 'docs/*.md,.github/*,requirements.txt,README.md').split(',')]
     
     # 리뷰를 건너뛸 라벨
-    SKIP_LABELS = ['no-ai-review', 'skip-review']
+    SKIP_LABELS = [l.strip() for l in os.getenv('SKIP_LABELS', 'no-ai-review,skip-review').split(',')]
     
     # 청크별 리뷰 최대 크기 (라인 수)
-    MAX_CHUNK_SIZE = 50
+    MAX_CHUNK_SIZE = int(os.getenv('MAX_CHUNK_SIZE', '50'))
 
 def should_skip_review(pr_info):
     """PR의 라벨을 확인하여 리뷰를 건너뛸지 결정합니다."""
@@ -72,8 +67,16 @@ def main():
     ai_service = AIService()
     diff_parser = DiffParser()
     style_checker = StyleChecker()
-    slack_service = SlackService()
-    discord_service = DiscordService()
+    
+    # 선택적 서비스 초기화
+    slack_service = None
+    discord_service = None
+    
+    if os.getenv('SLACK_BOT_TOKEN'):
+        slack_service = SlackService()
+        
+    if os.getenv('DISCORD_WEBHOOK_URL'):
+        discord_service = DiscordService()
 
     try:
         # PR 정보 가져오기
@@ -120,16 +123,18 @@ def main():
         github_service.post_review(summary_review)
         
         # Slack 알림 전송
-        try:
-            slack_service.send_review_notification(pr_info, summary_review, style_issues)
-        except Exception as e:
-            print(f"Failed to send Slack notification: {str(e)}")
+        if slack_service:
+            try:
+                slack_service.send_review_notification(pr_info, summary_review, style_issues)
+            except Exception as e:
+                print(f"Failed to send Slack notification: {str(e)}")
         
         # Discord 알림 전송
-        try:
-            discord_service.send_review_notification(pr_info, summary_review, style_issues)
-        except Exception as e:
-            print(f"Failed to send Discord notification: {str(e)}")
+        if discord_service:
+            try:
+                discord_service.send_review_notification(pr_info, summary_review, style_issues)
+            except Exception as e:
+                print(f"Failed to send Discord notification: {str(e)}")
         
     except Exception as e:
         print(f"Error during review process: {str(e)}")

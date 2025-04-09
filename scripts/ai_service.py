@@ -5,7 +5,7 @@ from diff_parser import DiffChunk
 class AIService:
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        self.model = "gpt-4"  # GPT-4를 기본 모델로 설정
+        self.model = os.getenv('AI_MODEL', 'gpt-4')  # 환경 변수에서 모델을 가져옵니다
 
     def generate_review(self, pr_info, diff):
         """PR 정보와 코드 변경사항을 기반으로 AI 리뷰를 생성합니다."""
