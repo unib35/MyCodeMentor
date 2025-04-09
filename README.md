@@ -37,7 +37,7 @@ AI CodeMentor가 작동하려면 필요한 API 키를 GitHub Secrets에 설정�
      
    - 이름: `DISCORD_WEBHOOK_URL`
      설명: Discord 웹훅 URL
-     값: Discord 채널에서 생성한 웹훅 URL (형식: `https://discord.com/api/webhooks/1234567890123456789/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
+     값: Discord 채널에서 생성한 웹훅 URL (형식: `https://discord.com/api/webhooks/1234567890123456789/X...`)
 
 ### 2. GitHub Actions 워크플로우 설정
 
