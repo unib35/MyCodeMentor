@@ -14,34 +14,52 @@ Pull Request 리뷰를 자동화하는 AI 기반 코드 리뷰 도구입니다. 
 
 ## 🚀 시작하기
 
-### 1. GitHub Secrets 설정하기
+### 사전 준비
 
-AI CodeMentor가 작동하려면 필요한 API 키를 GitHub Secrets에 설정해야 합니다:
+- GitHub 계정과 저장소 관리자 권한
+- [OpenAI API 키](https://platform.openai.com/api-keys)
+- (선택) Slack 워크스페이스 또는 Discord 서버 - 알림 사용 시
 
-1. GitHub 저장소 페이지에서 상단 탭의 `Settings`를 클릭합니다.
-2. 좌측 사이드바에서 `Secrets and variables`를 확장합니다.
-3. `Actions`를 클릭합니다.
-4. `Secrets` 탭이 선택되어 있는지 확인합니다.
-5. `New repository secret` 버튼을 클릭합니다.
-6. 다음 Secret을 하나씩 추가합니다:
+### 1. OpenAI API 키 획득하기
+
+1. [OpenAI 플랫폼](https://platform.openai.com/) 웹사이트에 로그인합니다.
+2. 우측 상단의 계정 아이콘 > `API keys`를 클릭합니다.
+3. `+ Create new secret key` 버튼을 클릭하고 키 이름을 입력합니다 (예: "AI CodeMentor").
+4. 생성된 API 키를 안전한 곳에 저장합니다. **이 키는 한 번만 표시됩니다!**
+
+### 2. GitHub Secrets 설정하기
+
+API 키와 웹훅 URL을 안전하게 저장하기 위해 GitHub Secrets를 설정합니다:
+
+1. GitHub 저장소 페이지 > `Settings` > `Secrets and variables` > `Actions`로 이동합니다.
+2. `Secrets` 탭에서 `New repository secret` 버튼을 클릭합니다.
+3. 다음 Secret을 추가합니다:
 
    **필수 Secret:**
-   - 이름: `OPENAI_API_KEY`
-     설명: OpenAI API 키
-     값: [OpenAI 대시보드](https://platform.openai.com/api-keys)에서 발급받은 API 키
-     
-   **선택적 Secret (알림 기능 사용 시):**
-   - 이름: `SLACK_WEBHOOK_URL`
-     설명: Slack 연동용 웹훅 URL
-     값: Slack API에서 발급받은 웹훅 URL
-     
-   - 이름: `DISCORD_WEBHOOK_URL`
-     설명: Discord 웹훅 URL
-     값: Discord 채널에서 생성한 웹훅 URL (형식: `https://discord.com/api/webhooks/1234567890123456789/X...`)
+   ```
+   이름: OPENAI_API_KEY
+   값: sk-xxxxxxxxxxxxxxxxxxxx (OpenAI API 키)
+   ```
+   
+   **알림 기능 사용 시 (선택 사항):**
+   ```
+   이름: SLACK_WEBHOOK_URL
+   값: https://hooks.slack.com/services/xxx/xxx/xxx
+   ```
+   
+   ```
+   이름: DISCORD_WEBHOOK_URL
+   값: https://discord.com/api/webhooks/xxx/xxx
+   ```
 
-### 2. GitHub Actions 워크플로우 설정
+### 3. GitHub Actions 워크플로우 설정
 
-1. 저장소에 `.github/workflows/ai-codementor.yml` 파일을 생성합니다:
+1. 저장소에 `.github/workflows` 디렉토리가 없다면 생성합니다:
+   ```bash
+   mkdir -p .github/workflows
+   ```
+
+2. `.github/workflows/ai-codementor.yml` 파일을 생성하고 다음 내용을 추가합니다:
 
 ```yaml
 name: AI CodeMentor Review
@@ -58,6 +76,10 @@ jobs:
       contents: read
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
       - name: AI Code Review
         uses: your-org/ai-codementor@main  # 여기를 자신의 조직/계정으로 변경하세요
         with:
@@ -67,9 +89,31 @@ jobs:
           # slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           # discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           # model: 'gpt-4' # 기본값: gpt-4
-          # language: 'korean' # 기본값: english
+          # language: 'ko' # 기본값: en (영어)
           # max-files: 5 # 기본값: 7
 ```
+
+### 4. 설치 확인하기
+
+1. 새로운 PR을 생성합니다:
+   - 새 브랜치 생성: `git checkout -b test-ai-review`
+   - 간단한 변경 추가: 아무 파일이나 간단히 수정
+   - 커밋 및 푸시: `git commit -m "테스트: AI 리뷰 테스트" && git push -u origin test-ai-review`
+   - GitHub에서 PR 생성
+
+2. PR이 생성되면 GitHub Actions에서 AI 리뷰가 시작됩니다:
+   - PR 페이지에서 "Checks" 탭을 확인하세요
+   - 몇 분 후 AI가 PR에 코드 리뷰 코멘트를 추가합니다
+   - Slack이나 Discord를 설정한 경우 알림도 확인해보세요
+
+### 빠른 설정 팁
+
+- **별도의 저장소 사용**: AI CodeMentor를 위한 별도 저장소를 만들고 여러 프로젝트에서 참조하면 관리가 더 쉽습니다.
+- **비용 관리**: OpenAI API는 사용량에 따라 비용이 발생합니다. 적절한 사용량 제한을 설정하세요.
+- **리뷰 제외하기**: 특정 PR에 `no-ai-review` 라벨을 추가하면 리뷰를 건너뛸 수 있습니다.
+- **맞춤 설정**: 프로젝트 가이드라인을 `.github/review-guidelines.md` 파일에 추가하여 AI가 프로젝트 특화 코딩 표준을 고려하도록 할 수 있습니다.
+
+🔍 **자세한 내용은 [설치 및 시작 가이드](docs/installation.md)를 참조하세요!**
 
 ## 📝 리뷰 내용
 
