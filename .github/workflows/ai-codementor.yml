@@ -1,4 +1,4 @@
-name: AI Teamjangnim Review
+name: AI CodeMentor Review
 
 on:
   pull_request:
