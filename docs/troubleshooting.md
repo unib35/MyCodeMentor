@@ -205,6 +205,33 @@ env:
   BASE_BRANCH: develop  # 또는 master, production 등
 ```
 
+### 워크플로우 파일이 없는 브랜치 문제
+
+**증상:** PR을 생성했지만 AI CodeMentor가 리뷰를 수행하지 않고, GitHub Actions에서 워크플로우가 실행되지 않습니다.
+
+**원인:** 
+GitHub Actions는 PR의 대상 브랜치(base branch)가 아닌 **PR을 생성한 브랜치(head branch)의 워크플로우 파일**을 사용합니다. 따라서 `.github/workflows/code-review.yml` 파일이 PR을 생성한 브랜치에 없으면 워크플로우가 실행되지 않습니다.
+
+**해결 방법:**
+1. 기본 브랜치(main 또는 develop)에 `.github/workflows/code-review.yml` 파일을 먼저 추가합니다.
+2. 기본 브랜치에 워크플로우 파일을 추가하는 PR을 생성하고 병합합니다.
+3. 이후 모든 새 브랜치는 반드시 워크플로우 파일이 포함된 기본 브랜치에서 분기합니다:
+   ```bash
+   git checkout main  # 또는 develop
+   git pull
+   git checkout -b feature/my-new-feature
+   ```
+4. 이제 이 브랜치에서 PR을 생성하면 AI 리뷰가 정상적으로 실행됩니다.
+
+**주의사항:**
+* 이미 생성된 오래된 브랜치의 경우, 해당 브랜치를 기본 브랜치와 동기화하여 워크플로우 파일을 포함시켜야 합니다:
+  ```bash
+  git checkout my-existing-branch
+  git merge main  # 또는 develop
+  git push
+  ```
+* 팀원들에게 항상 최신 기본 브랜치에서 새 브랜치를 생성하도록 안내하세요.
+
 ### 특수 브랜치 전략 문제
 
 **증상:** 특정 브랜치 전략(Git Flow, GitHub Flow 등)을 사용할 때 워크플로우가 올바르게 작동하지 않습니다.
