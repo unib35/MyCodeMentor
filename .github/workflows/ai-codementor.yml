@@ -1,5 +1,6 @@
 name: AI CodeMentor Review
 
+# 이 워크플로우는 PR이 생성되거나 업데이트될 때 자동으로 실행됩니다
 on:
   pull_request:
     types: [opened, synchronize]
@@ -26,6 +27,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ===================================================================
+      # 중앙 저장소 방식을 사용할 경우, 아래 행을 다음과 같이 변경하세요:
+      #
+      # - name: Run AI Review
+      #   uses: GitHub사용자명/aicodementor@main
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+      #     # 기타 원하는 옵션 추가
+      # 
+      # 여기서 'GitHub사용자명' 부분을 실제 GitHub 계정명이나 조직명으로 바꿉니다.
+      # 예: uses: mycompany/aicodementor@main 또는 uses: johndoe/aicodementor@main
+      # ===================================================================
+      
       - name: Run AI Review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
