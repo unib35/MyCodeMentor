@@ -80,17 +80,23 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: AI Code Review
-        uses: your-org/ai-codementor@main  # 여기를 자신의 조직/계정으로 변경하세요
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          # 아래 설정은 선택사항입니다
-          # slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          # discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          # model: 'gpt-4' # 기본값: gpt-4
-          # language: 'ko' # 기본값: en (영어)
-          # max-files: 5 # 기본값: 7
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run AI Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python scripts/review.py
 ```
 
 ### 4. 설치 확인하기
@@ -108,7 +114,6 @@ jobs:
 
 ### 빠른 설정 팁
 
-- **별도의 저장소 사용**: AI CodeMentor를 위한 별도 저장소를 만들고 여러 프로젝트에서 참조하면 관리가 더 쉽습니다.
 - **비용 관리**: OpenAI API는 사용량에 따라 비용이 발생합니다. 적절한 사용량 제한을 설정하세요.
 - **리뷰 제외하기**: 특정 PR에 `no-ai-review` 라벨을 추가하면 리뷰를 건너뛸 수 있습니다.
 - **맞춤 설정**: 프로젝트 가이드라인을 `.github/review-guidelines.md` 파일에 추가하여 AI가 프로젝트 특화 코딩 표준을 고려하도록 할 수 있습니다.
@@ -134,10 +139,6 @@ AI CodeMentor는 다음과 같은 리뷰를 제공합니다:
 - 코드 구조 개선
 - 디자인 패턴 적용
 - 리팩토링 제안
-
-## 🚀 여러 저장소에서 사용하기
-
-AI CodeMentor는 중앙 저장소를 통해 여러 GitHub 저장소에서 쉽게 사용할 수 있습니다. 자세한 내용은 [설치 및 시작 가이드](docs/installation.md#여러-저장소에서-사용하기)를 참조하세요.
 
 ## 📨 알림 설정
 
