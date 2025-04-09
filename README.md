@@ -9,7 +9,55 @@ AI CodeMentor는 중앙 저장소를 통해 여러 GitHub 저장소에서 쉽게
 ### 중앙 저장소 설정 (조직 또는 개인 계정)
 
 1. GitHub 조직 또는 개인 계정에 `ai-codementor` 저장소를 생성합니다.
-2. 이 저장소의 모든 코드를 해당 저장소에 복사합니다.
+2. 이 저장소의 모든 코드를 해당 저장소에 복사합니다. 다음 방법 중 하나를 선택하세요:
+
+   **방법 1: GitHub 포크(Fork) 사용하기** (가장 쉬운 방법)
+   - 이 저장소 페이지 상단의 "Fork" 버튼을 클릭합니다.
+   - 포크할 계정(조직 또는 개인)을 선택합니다.
+   - 저장소 이름을 `ai-codementor`로 변경합니다.
+   - "Create fork" 버튼을 클릭합니다.
+
+   **방법 2: GitHub CLI 사용하기** (명령줄 사용자용)
+   ```bash
+   # 이 저장소를 로컬에 클론합니다
+   gh repo clone 원본저장소주소 ai-codementor
+   cd ai-codementor
+   
+   # 새로운 저장소를 생성하고 코드를 푸시합니다
+   gh repo create your-org/ai-codementor --public
+   git push -u origin main
+   ```
+
+   **방법 3: 수동 복사하기**
+   
+   **Windows에서:**
+   - 이 저장소를 ZIP 파일로 다운로드:
+     1. 저장소 페이지에서 초록색 "Code" 버튼을 클릭합니다.
+     2. "Download ZIP"을 선택합니다.
+     3. 다운로드된 ZIP 파일을 적절한 위치에 압축 해제합니다.
+   - 새 GitHub 저장소 생성:
+     1. GitHub 웹사이트에서 "New" 버튼을 클릭합니다.
+     2. 저장소 이름을 `ai-codementor`로 입력합니다.
+     3. "Create repository"를 클릭합니다.
+   - 파일 업로드:
+     1. 새로 생성된 저장소에서 "uploading an existing file" 링크를 클릭합니다.
+     2. 압축 해제한 폴더에서 모든 파일을 선택하여 끌어다 놓거나 "choose your files" 버튼을 클릭하여 선택합니다.
+     3. "Commit changes" 버튼을 클릭합니다.
+
+   **Mac OS에서:**
+   - 이 저장소를 ZIP 파일로 다운로드:
+     1. 저장소 페이지에서 초록색 "Code" 버튼을 클릭합니다.
+     2. "Download ZIP"을 선택합니다.
+     3. 다운로드된 ZIP 파일은 보통 Downloads 폴더에 저장됩니다.
+     4. Finder에서 ZIP 파일을 더블클릭하여 압축을 풀거나, 터미널에서 `unzip ~/Downloads/저장소이름.zip`을 실행합니다.
+   - 새 GitHub 저장소 생성:
+     1. GitHub 웹사이트에서 우측 상단의 "+" 아이콘을 클릭하고 "New repository"를 선택합니다.
+     2. 저장소 이름을 `ai-codementor`로 입력합니다.
+     3. "Create repository"를 클릭합니다.
+   - 파일 업로드:
+     1. 새로 생성된 저장소에서 "uploading an existing file" 링크를 클릭합니다.
+     2. Finder에서 압축 해제된 폴더의 파일들을 선택하여 브라우저 창으로 드래그하거나, "choose your files" 버튼을 클릭하여 선택합니다.
+     3. "Commit changes" 버튼을 클릭합니다.
 
 ### 개별 저장소에서 사용하기
 
