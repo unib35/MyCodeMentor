@@ -47,6 +47,8 @@ jobs:
 3. `your-org/ai-codementor@main`을 실제 조직이나 계정 이름으로 변경합니다.
 4. GitHub Secrets에 필요한 API 키를 설정합니다.
 
+> **💡 팁:** 이 저장소에는 `workflow-template.yml` 파일이 포함되어 있습니다. 이 파일을 복사하여 자신의 저장소에 그대로 사용할 수 있습니다. 이 템플릿에는 필요한 모든 설정이 포함되어 있으며, 자신의 환경에 맞게 약간의 수정만 하면 됩니다.
+
 ## 🚀 시작하기
 
 ### 1. GitHub 저장소에 추가하기
@@ -61,7 +63,9 @@ jobs:
 ### 2. GitHub Actions 워크플로우 설정
 
 1. 저장소에 `.github/workflows/ai-codementor.yml` 파일이 있는지 확인합니다.
-2. 없다면, 이 저장소의 파일을 복사하여 추가합니다.
+2. 없다면, 이 저장소의 템플릿 파일(`workflow-template.yml`)을 복사하여 사용하세요.
+   - 템플릿 파일은 필요한 모든 구성이 이미 설정되어 있습니다.
+   - 조직/사용자 이름만 변경하면 바로 사용할 수 있습니다.
 
 ### 3. Pull Request 생성하기
 
@@ -103,6 +107,29 @@ AI CodeMentor는 다음과 같은 리뷰를 제공합니다:
 - `no-ai-review`
 - `skip-review`
 
+#### 사용 예시
+1. GitHub에서 PR 페이지로 이동합니다.
+2. 오른쪽 사이드바에서 "Labels" 드롭다운을 클릭합니다.
+3. `no-ai-review` 또는 `skip-review` 라벨을 선택합니다.
+
+![리뷰 스킵 설정 예시](https://github.com/github/docs/assets/images/help/pull_requests/labels-drop-down.png)
+
+```yaml
+# 이미 PR이 생성된 후 GitHub CLI를 사용하여 라벨 추가하기
+gh pr edit 123 --add-label "no-ai-review"
+```
+
+**참고:** PR에 이러한 라벨이 있으면 AI CodeMentor는 다음 메시지를 출력하고 즉시 종료합니다:
+```
+Skipping review due to skip label
+```
+
+이 기능은 다음과 같은 경우에 유용합니다:
+- 문서만 수정한 경우
+- 임시 PR을 생성하는 경우
+- 자동 리뷰가 필요하지 않은 작은 수정사항
+- 직접 코드 리뷰를 받고자 하는 경우
+
 ## 📨 알림 설정
 
 ### Slack 알림
@@ -135,41 +162,25 @@ AI CodeMentor는 다음과 같은 리뷰를 제공합니다:
 ### 프로젝트 구조
 ```
 ├── .github/workflows/ai-codementor.yml  # GitHub Actions 설정
-├── scripts/
-│    ├── review.py           # 메인 리뷰 로직
-│    ├── ai_service.py       # GPT 연동
-│    ├── github_service.py   # GitHub 연동
-│    ├── diff_parser.py      # 코드 변경 분석
-│    ├── style_checker.py    # 코드 스타일 검사
-│    ├── slack_service.py    # Slack 알림
-│    └── discord_service.py  # Discord 알림
-├── requirements.txt         # 필요한 패키지
-└── README.md               # 사용 설명서
+├── scripts/                           # 코드 리뷰 스크립트
+│    ├── review.py                     # 메인 리뷰 로직
+│    ├── ai_service.py                 # GPT 연동
+│    ├── github_service.py             # GitHub 연동
+│    ├── diff_parser.py                # 코드 변경 분석
+│    ├── style_checker.py              # 코드 스타일 검사
+│    ├── slack_service.py              # Slack 알림
+│    └── discord_service.py            # Discord 알림
+├── requirements.txt                   # 필요한 패키지
+├── action.yml                         # GitHub Action 정의
+├── workflow-template.yml              # 다른 저장소용 템플릿
+└── README.md                          # 사용 설명서
 ```
 
-### 개발 계획
-1. MVP Setup ✅
-   - 기본 GitHub Actions 워크플로우
-   - 기본 GPT 코드 리뷰
-   - PR 코멘트 게시
+### 주요 파일 역할
+- **ai-codementor.yml**: 이 저장소에서 AI 코드 리뷰를 실행하는 워크플로우
+- **action.yml**: 다른 저장소에서 이 코드를 재사용할 수 있게 하는 GitHub Action 정의
+- **workflow-template.yml**: 다른 저장소에서 복사하여 사용할 수 있는 템플릿 파일
 
-2. File Exclusion & Label Handling ✅
-   - 파일 제외 패턴 구현
-   - 리뷰 스킵 라벨 처리
-
-3. Line-by-line Comments ✅
-   - 코드 청크 기반 리뷰
-   - 라인별 코멘트 게시
-
-4. Additional Checks & Notifications ✅
-   - 코드 스타일 검사
-   - Slack 알림 통합
-   - Discord 알림 통합
-
-5. 중앙 저장소 & 재사용 ✅
-   - GitHub Action 패키징
-   - 환경 변수 설정 유연성
-   - 여러 저장소 지원
 
 ## 🤝 기여하기
 
