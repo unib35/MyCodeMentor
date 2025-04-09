@@ -1,6 +1,51 @@
-# AI 팀장님 (AITeamjangnim)
+# AI CodeMentor (AICodeMentor)
 
 Pull Request 리뷰를 자동화하는 AI 기반 코드 리뷰 도구입니다. 개발자가 아닌 분들도 쉽게 설정하고 사용할 수 있습니다.
+
+## 🚀 여러 저장소에서 사용하기
+
+AI CodeMentor는 중앙 저장소를 통해 여러 GitHub 저장소에서 쉽게 사용할 수 있습니다.
+
+### 중앙 저장소 설정 (조직 또는 개인 계정)
+
+1. GitHub 조직 또는 개인 계정에 `ai-codementor` 저장소를 생성합니다.
+2. 이 저장소의 모든 코드를 해당 저장소에 복사합니다.
+
+### 개별 저장소에서 사용하기
+
+1. 개별 저장소에 `.github/workflows/ai-review.yml` 파일을 생성합니다.
+2. 아래 템플릿을 사용하여 워크플로우를 설정합니다:
+
+```yaml
+name: AI CodeMentor Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: AI Code Review
+        uses: your-org/ai-codementor@main  # 여기를 자신의 조직/계정으로 변경하세요
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          # 아래 설정은 선택사항입니다
+          # slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          # slack_channel: '#code-reviews'
+          # discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # model: 'gpt-4' # 기본값: gpt-4
+          # skip_labels: 'no-ai-review,skip-review' # 기본값
+          # exclude_patterns: 'docs/*.md,.github/*,requirements.txt,README.md' # 기본값
+```
+
+3. `your-org/ai-codementor@main`을 실제 조직이나 계정 이름으로 변경합니다.
+4. GitHub Secrets에 필요한 API 키를 설정합니다.
 
 ## 🚀 시작하기
 
@@ -15,18 +60,18 @@ Pull Request 리뷰를 자동화하는 AI 기반 코드 리뷰 도구입니다. 
 
 ### 2. GitHub Actions 워크플로우 설정
 
-1. 저장소에 `.github/workflows/ai-teamjangnim.yml` 파일이 있는지 확인합니다.
+1. 저장소에 `.github/workflows/ai-codementor.yml` 파일이 있는지 확인합니다.
 2. 없다면, 이 저장소의 파일을 복사하여 추가합니다.
 
 ### 3. Pull Request 생성하기
 
 1. 새로운 브랜치를 생성하고 코드를 수정합니다.
 2. GitHub에서 Pull Request를 생성합니다.
-3. AI 팀장님이 자동으로 리뷰를 시작합니다!
+3. AI CodeMentor가 자동으로 리뷰를 시작합니다!
 
 ## 📝 리뷰 내용
 
-AI 팀장님은 다음과 같은 리뷰를 제공합니다:
+AI CodeMentor는 다음과 같은 리뷰를 제공합니다:
 
 ### 코드 품질 검사
 - 코드 스타일과 가독성
@@ -89,7 +134,7 @@ AI 팀장님은 다음과 같은 리뷰를 제공합니다:
 
 ### 프로젝트 구조
 ```
-├── .github/workflows/ai-teamjangnim.yml  # GitHub Actions 설정
+├── .github/workflows/ai-codementor.yml  # GitHub Actions 설정
 ├── scripts/
 │    ├── review.py           # 메인 리뷰 로직
 │    ├── ai_service.py       # GPT 연동
@@ -101,6 +146,30 @@ AI 팀장님은 다음과 같은 리뷰를 제공합니다:
 ├── requirements.txt         # 필요한 패키지
 └── README.md               # 사용 설명서
 ```
+
+### 개발 계획
+1. MVP Setup ✅
+   - 기본 GitHub Actions 워크플로우
+   - 기본 GPT 코드 리뷰
+   - PR 코멘트 게시
+
+2. File Exclusion & Label Handling ✅
+   - 파일 제외 패턴 구현
+   - 리뷰 스킵 라벨 처리
+
+3. Line-by-line Comments ✅
+   - 코드 청크 기반 리뷰
+   - 라인별 코멘트 게시
+
+4. Additional Checks & Notifications ✅
+   - 코드 스타일 검사
+   - Slack 알림 통합
+   - Discord 알림 통합
+
+5. 중앙 저장소 & 재사용 ✅
+   - GitHub Action 패키징
+   - 환경 변수 설정 유연성
+   - 여러 저장소 지원
 
 ## 🤝 기여하기
 
