@@ -99,23 +99,64 @@ jobs:
 
 ## 🚀 시작하기
 
-### 1. GitHub 저장소에 추가하기
+### 1. GitHub Secrets 설정하기
 
-1. GitHub 저장소의 `Settings` > `Secrets and variables` > `Actions` 메뉴로 이동합니다.
-2. 다음 환경 변수들을 추가합니다:
-   - `OPENAI_API_KEY`: [OpenAI](https://platform.openai.com/api-keys)에서 발급받은 API 키
-   - `SLACK_BOT_TOKEN`: [Slack API](https://api.slack.com/apps)에서 생성한 봇 토큰
-   - `SLACK_CHANNEL`: 알림을 받을 Slack 채널 이름 (예: #code-reviews)
-   - `DISCORD_WEBHOOK_URL`: [Discord 웹훅 가이드](https://support.discord.com/hc/ko/articles/228383668-%EC%9B%B9%ED%9B%85-%EA%B0%80%EC%9D%B4%EB%93%9C)에 따라 생성한 웹훅 URL
+AI CodeMentor가 작동하려면 필요한 API 키를 GitHub Secrets에 설정해야 합니다:
 
-### 2. GitHub Actions 워크플로우 설정
+1. GitHub 저장소 페이지에서 상단 탭의 `Settings`를 클릭합니다.
+2. 좌측 사이드바에서 `Secrets and variables`를 확장합니다.
+3. `Actions`를 클릭합니다.
+4. `Secrets` 탭이 선택되어 있는지 확인합니다.
+5. `New repository secret` 버튼을 클릭합니다.
+6. 다음 Secret을 하나씩 추가합니다:
+
+   **필수 Secret:**
+   - 이름: `OPENAI_API_KEY`
+     설명: OpenAI API 키
+     값: [OpenAI 대시보드](https://platform.openai.com/api-keys)에서 발급받은 API 키
+     
+   **선택적 Secret (알림 기능 사용 시):**
+   - 이름: `SLACK_BOT_TOKEN`
+     설명: Slack 연동용 봇 토큰
+     값: Slack API에서 발급받은 봇 토큰
+     
+   - 이름: `DISCORD_WEBHOOK_URL`
+     설명: Discord 웹훅 URL
+     값: Discord 채널에서 생성한 웹훅 URL
+
+7. 각 Secret을 추가할 때마다:
+   - `Name` 필드에 위의 이름(예: `OPENAI_API_KEY`)을 정확히 입력합니다.
+   - `Secret` 필드에 해당 값을 붙여넣습니다.
+   - `Add secret` 버튼을 클릭하여 저장합니다.
+
+8. 저장이 완료되면 Secret 목록에 추가한 항목이 표시됩니다.
+
+![GitHub Secrets 설정 예시](https://docs.github.com/assets/cb-41625/mw-1440/images/help/repository/actions-secret-create.webp)
+
+**참고:**
+- Secret은 암호화되어 저장되며, 추가 후에는 값을 볼 수 없습니다. 필요 시 업데이트만 가능합니다.
+- Secret 값에는 특수 문자가 포함될 수 있으니 복사-붙여넣기 시 공백이 추가되지 않도록 주의하세요.
+- 조직 수준의 Secret을 설정하려면 조직의 Settings > Secrets and variables > Actions에서 동일한 방식으로 추가할 수 있습니다.
+
+### 2. Variables 설정 (선택사항)
+
+GitHub Variables를 사용하여 Slack 채널 같은 선택적 설정을 저장할 수 있습니다:
+
+1. `Secrets and variables` > `Actions` 페이지에서 `Variables` 탭을 클릭합니다.
+2. `New repository variable` 버튼을 클릭합니다.
+3. 다음 Variable을 추가할 수 있습니다:
+   
+   - 이름: `SLACK_CHANNEL`
+     값: `#code-reviews` (또는 원하는 Slack 채널 이름)
+
+### 3. GitHub Actions 워크플로우 설정
 
 1. 저장소에 `.github/workflows/ai-codementor.yml` 파일이 있는지 확인합니다.
 2. 없다면, 이 저장소의 템플릿 파일(`workflow-template.yml`)을 복사하여 사용하세요.
    - 템플릿 파일은 필요한 모든 구성이 이미 설정되어 있습니다.
    - 조직/사용자 이름만 변경하면 바로 사용할 수 있습니다.
 
-### 3. Pull Request 생성하기
+### 4. Pull Request 생성하기
 
 1. 새로운 브랜치를 생성하고 코드를 수정합니다.
 2. GitHub에서 Pull Request를 생성합니다.
