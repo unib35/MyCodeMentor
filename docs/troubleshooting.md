@@ -1,170 +1,215 @@
 # AI CodeMentor 문제 해결 가이드
 
-AI CodeMentor를 사용하면서 발생할 수 있는 일반적인 문제와 해결 방법을 안내합니다.
+AI CodeMentor를 설치하고 사용하는 과정에서 발생할 수 있는 일반적인 문제와 해결 방법을 안내합니다.
 
 ## 목차
+- [설치 및 설정 문제](#설치-및-설정-문제)
 - [워크플로우 실행 문제](#워크플로우-실행-문제)
 - [API 키 문제](#api-키-문제)
 - [리뷰 결과 문제](#리뷰-결과-문제)
 - [알림 문제](#알림-문제)
-- [기타 문제](#기타-문제)
 - [권한 문제](#권한-문제)
+- [Git 및 브랜치 문제](#git-및-브랜치-문제)
+
+## 설치 및 설정 문제
+
+### 워크플로우 파일 설정 오류
+
+**증상:** 워크플로우 파일 생성 후 GitHub Actions에서 YAML 구문 오류가 표시됩니다.
+
+**해결 방법:**
+1. `.github/workflows/ai-codementor.yml` 파일의 들여쓰기가 올바른지 확인합니다.
+2. 모든 YAML 키-값 쌍이 올바르게 구성되었는지 확인합니다.
+3. GitHub 웹 인터페이스에서 파일을 편집할 때는 자동으로 YAML 유효성 검사가 이루어집니다.
+
+### 필수 파일 누락
+
+**증상:** 워크플로우는 실행되지만 "File not found" 오류와 함께 실패합니다.
+
+**해결 방법:**
+1. 저장소에 다음 파일들이 모두 포함되어 있는지 확인합니다:
+   - `.github/workflows/ai-codementor.yml`
+   - `requirements.txt`
+   - `scripts/` 디렉토리와 그 안의 Python 파일들
+
+2. 필요한 파일 구조:
+```
+.github/
+└── workflows/
+    └── ai-codementor.yml
+scripts/
+├── review.py
+├── ai_service.py
+├── github_service.py
+├── diff_parser.py
+├── style_checker.py
+├── slack_service.py
+└── discord_service.py
+requirements.txt
+```
 
 ## 워크플로우 실행 문제
 
 ### 워크플로우가 실행되지 않음
 
-**증상:** GitHub에서 PR을 생성했지만 AI 리뷰 워크플로우가 실행되지 않습니다.
+**증상:** PR을 생성했지만 AI 리뷰 워크플로우가 실행되지 않습니다.
 
 **해결 방법:**
-1. GitHub 저장소의 "Actions" 탭에서 워크플로우 실행 상태를 확인합니다.
-2. `.github/workflows/ai-review.yml` 파일이 올바르게 설정되어 있는지 확인합니다.
-3. 워크플로우 파일에 `pull_request` 또는 `pull_request_target` 이벤트가 정의되어 있는지 확인합니다.
+1. GitHub 저장소의 "Actions" 탭에서 워크플로우 활성화 상태를 확인합니다.
+2. 저장소 설정 > Actions > General에서 "Allow all actions and reusable workflows"가 선택되어 있는지 확인합니다.
+3. 워크플로우 파일에 `pull_request` 이벤트와 타입이 올바르게 설정되어 있는지 확인합니다:
 
 ```yaml
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 ```
 
-4. 브랜치 보호 규칙이 워크플로우 실행을 차단하지 않는지 확인합니다.
+### 워크플로우 실행 시간 초과
 
-### 워크플로우 실행이 실패함
-
-**증상:** 워크플로우가 시작되지만 중간에 실패합니다.
+**증상:** 대규모 PR에서 워크플로우가 시간 초과로 실패합니다.
 
 **해결 방법:**
-1. GitHub Actions 로그를 확인하여 실패 이유를 파악합니다.
-2. 로그에서 다음 사항을 확인합니다:
-   - 필수 시크릿이 누락되었는지 (`OPENAI_API_KEY` 등)
-   - 시크릿 값이 유효한지
-   - 액세스 권한 문제가 있는지
+1. 환경 변수 `MAX_FILES`를 사용하여 리뷰할 파일 수를 제한합니다.
+2. 환경 변수 `EXCLUDE_PATTERNS`를 사용하여 불필요한 파일을 제외합니다.
+3. PR을 더 작은 단위로 나누어 제출합니다.
 
 ## API 키 문제
 
 ### OpenAI API 키 오류
 
-**증상:** 워크플로우가 `Invalid API key` 또는 유사한 오류로 실패합니다.
+**증상:** `Invalid API key` 또는 `Authentication error` 오류가 발생합니다.
 
 **해결 방법:**
-1. GitHub Secrets에서 `OPENAI_API_KEY`가 올바르게 설정되어 있는지 확인합니다.
-2. OpenAI 계정에서 API 키가 활성 상태인지 확인합니다.
-3. API 키가 요금 한도에 도달하지 않았는지 확인합니다.
-4. API 키를 재생성하고 GitHub Secrets를 업데이트합니다.
+1. GitHub Secrets에 `OPENAI_API_KEY`가 올바르게 설정되어 있는지 확인합니다:
+   - 저장소 설정 > Secrets and variables > Actions로 이동
+   - Repository secrets 확인
 
-### API 사용량 제한 문제
+2. API 키 형식이 올바른지 확인합니다:
+   - OpenAI API 키는 `sk-`로 시작해야 합니다
+   - 키에 공백이나 따옴표가 포함되어 있지 않아야 합니다
 
-**증상:** 워크플로우가 `Rate limit exceeded` 오류로 실패합니다.
+3. API 키가 활성 상태인지 OpenAI 대시보드에서 확인합니다.
+
+### API 사용량 한도 초과
+
+**증상:** `Rate limit exceeded` 또는 `You exceeded your current quota` 오류가 발생합니다.
 
 **해결 방법:**
-1. OpenAI 대시보드에서 API 사용량을 확인합니다.
-2. 대규모 PR의 경우 API 제한에 도달할 수 있으므로, PR을 더 작은 단위로 나누어 제출합니다.
-3. 모델을 `gpt-3.5-turbo`와 같이 더 효율적인 모델로 변경하는 것을 고려합니다.
+1. OpenAI 계정에 결제 수단이 등록되어 있는지 확인합니다.
+2. OpenAI 대시보드에서 사용량 및 한도를 확인합니다.
+3. 환경 변수 `MODEL`을 `gpt-3.5-turbo`와 같이 더 저렴한 모델로 설정합니다.
 
 ## 리뷰 결과 문제
 
-### 리뷰 내용이 없거나 불완전함
+### 리뷰가 생성되지 않음
 
-**증상:** PR에 리뷰가 달리지 않거나 리뷰 내용이 불완전합니다.
-
-**해결 방법:**
-1. PR의 크기가 지나치게 크지 않은지 확인합니다. 대규모 PR은 토큰 제한에 도달할 수 있습니다.
-2. 제외 패턴 설정을 확인하여 중요한 파일이 제외되지 않았는지 확인합니다.
-3. 워크플로우 설정에서 모델을 더 고급 모델(예: `gpt-4`, `gpt-4o`)로 변경해 봅니다.
-
-### 리뷰 관련 없는 내용 또는 부정확한 내용
-
-**증상:** AI 리뷰가 관련 없는 내용이나 부정확한 내용을 포함합니다.
+**증상:** 워크플로우는 성공적으로 실행되지만 PR에 리뷰 코멘트가 나타나지 않습니다.
 
 **해결 방법:**
-1. PR 설명을 더 명확하게 작성하여 AI에게 컨텍스트를 제공합니다.
-2. 더 적절한 모델(예: `gpt-4`)을 사용합니다.
-3. PR을 작은 단위로 나누어 명확한 목적을 갖도록 합니다.
+1. 워크플로우 권한 설정 확인:
+```yaml
+permissions:
+  pull-requests: write
+  contents: read
+```
+
+2. GitHub 저장소 설정 > Actions > General에서 "Workflow permissions"가 "Read and write permissions"로 설정되어 있는지 확인합니다.
+
+3. 환경 변수 `GITHUB_TOKEN`이 자동으로 제공되는지 확인합니다.
+
+### 리뷰 품질 문제
+
+**증상:** AI 리뷰가 관련 없거나 유용하지 않은 내용을 제공합니다.
+
+**해결 방법:**
+1. 환경 변수 `MODEL`을 `gpt-4` 또는 `gpt-4o`와 같은 더 강력한 모델로 설정합니다.
+2. PR 설명에 더 명확한 컨텍스트와 목적을 제공합니다.
+3. 환경 변수 `REVIEW_TYPE`을 `detailed`로 설정하여 더 자세한 리뷰를 받습니다.
 
 ## 알림 문제
 
-### Slack 알림이 전송되지 않음
+### Slack 알림 문제
 
-**증상:** PR 리뷰 완료 후 Slack 알림이 수신되지 않습니다.
+**증상:** PR 리뷰는 작동하지만 Slack 알림이 오지 않습니다.
 
 **해결 방법:**
-1. GitHub Secrets에 `SLACK_BOT_TOKEN`이 올바르게 설정되어 있는지 확인합니다.
-2. Slack 채널 이름이 올바르게 지정되었는지 확인합니다(예: `#channel-name`).
-3. 봇이 채널에 초대되었는지 확인합니다(`/invite @봇이름`).
-4. Slack 앱의 권한이 올바르게 설정되었는지 확인합니다:
+1. GitHub Secrets에 `SLACK_WEBHOOK_URL` 또는 `SLACK_BOT_TOKEN`이 올바르게 설정되어 있는지 확인합니다.
+2. 환경 변수 `SLACK_CHANNEL`이 올바른 채널 이름(예: `#code-reviews`)으로 설정되어 있는지 확인합니다.
+3. Slack 앱 설정에서 필요한 권한이 부여되어 있는지 확인합니다:
    - `chat:write`
-   - `chat:write.public`
    - `incoming-webhook`
 
-### Discord 알림이 전송되지 않음
+### Discord 알림 문제
 
-**증상:** PR 리뷰 완료 후 Discord 알림이 수신되지 않습니다.
+**증상:** PR 리뷰는 작동하지만 Discord 알림이 오지 않습니다.
 
 **해결 방법:**
 1. GitHub Secrets에 `DISCORD_WEBHOOK_URL`이 올바르게 설정되어 있는지 확인합니다.
-2. Discord 웹훅 URL이 여전히 유효한지 확인합니다. 필요한 경우 새 웹훅을 생성합니다.
-3. Discord 서버 설정에서 웹훅이 활성화되어 있는지 확인합니다.
-
-## 기타 문제
-
-### 특정 파일 유형에 대한 리뷰 문제
-
-**증상:** 특정 파일 유형(예: 특정 프로그래밍 언어)에 대한 리뷰가 제대로 이루어지지 않습니다.
-
-**해결 방법:**
-1. PR에 포함된 파일 유형이 AI가 지원하는 형식인지 확인합니다.
-2. 특수한 언어나 프레임워크의 경우, PR 설명에 관련 컨텍스트를 포함합니다.
-
-### PR 레이블 문제
-
-**증상:** 리뷰 건너뛰기 레이블을 추가했지만 여전히 리뷰가 실행됩니다.
-
-**해결 방법:**
-1. 워크플로우 파일에서 `skip_labels` 설정이 올바르게 구성되어 있는지 확인합니다.
-2. 레이블 이름이 정확히 일치하는지 확인합니다(대소문자 구분).
-3. PR을 다시 열거나 업데이트하여 워크플로우가 레이블을 감지하도록 합니다.
-
-### 리뷰 제한 시간 초과
-
-**증상:** 대규모 PR에서 리뷰 워크플로우가 시간 초과로 실패합니다.
-
-**해결 방법:**
-1. PR을 더 작은 단위로 나누어 제출합니다.
-2. 워크플로우 파일에서 시간 제한을 늘립니다(가능한 경우).
-3. 불필요한 파일을 제외 패턴에 추가합니다.
-
-```yaml
-with:
-  exclude_patterns: |
-    **/node_modules/**
-    **/dist/**
-    **/build/**
-    **/*.min.js
-    **/*.lock
-```
-
-### 기타 일반적인 해결 방법
-
-1. GitHub 저장소의 Actions 캐시를 정리합니다.
-2. 워크플로우 파일을 최신 버전으로 업데이트합니다.
-3. GitHub 상태 페이지를 확인하여 GitHub Actions 서비스에 문제가 없는지 확인합니다.
-4. 로그 상세 정보를 확인하여 더 자세한 오류 메시지를 찾습니다.
-
+2. Discord 웹훅 URL이 유효한지 확인합니다:
+   - Discord 서버 설정 > 연동 > 웹후크에서 확인
+   - 필요시 새 웹훅을 생성하고 URL을 업데이트합니다
+3. 웹훅 URL 형식은 `https://discord.com/api/webhooks/...`여야 합니다.
 
 ## 권한 문제
 
-권한 오류가 발생하는 경우:
+### GitHub 권한 부족
 
-1. 워크플로우 파일에 필요한 권한이 설정되어 있는지 확인하세요:
-   ```yaml
-   permissions:
-     pull-requests: write
-     contents: read
-   ```
+**증상:** 워크플로우가 `Resource not accessible by integration` 오류와 함께 실패합니다.
 
-2. GitHub 토큰이 올바르게 설정되어 있는지 확인하세요:
-   - 워크플로우에서는 `GITHUB_TOKEN`이 자동으로 설정되지만, 권한이 제한될 수 있습니다.
-   - 더 많은 권한이 필요한 경우 Personal Access Token을 생성하여 Secret으로 설정할 수 있습니다.
+**해결 방법:**
+1. 저장소 설정 > Actions > General에서 "Workflow permissions"를 "Read and write permissions"로 설정합니다.
+2. 워크플로우 파일에 권한 설정을 추가합니다:
+```yaml
+permissions:
+  pull-requests: write
+  contents: read
+```
 
-3. Organization 수준의 권한이 설정되어 있는지 확인하세요:
-   - Organization > Settings > Actions > General에서 워크플로우 권한을 확인할 수 있습니다. 
+3. Organization 설정의 경우, Organization Settings > Actions > General에서 "Workflow permissions"를 확인합니다.
+
+### 조직 수준 제한
+
+**증상:** 조직 저장소에서 워크플로우가 실행되지 않거나 권한 오류가 발생합니다.
+
+**해결 방법:**
+1. 조직 관리자에게 문의하여 다음 사항을 확인합니다:
+   - 워크플로우 실행 권한
+   - Action 사용 권한
+   - Secret 접근 권한
+2. Organization Settings > Actions > General에서 "Allowed actions"가 "Allow all actions"로 설정되어 있는지 확인합니다.
+
+## Git 및 브랜치 문제
+
+### 브랜치 참조 오류
+
+**증상:** 워크플로우가 `fatal: ambiguous argument` 오류와 함께 실패합니다.
+
+**해결 방법:**
+1. 워크플로우 파일에 모든 브랜치를 가져오는 단계 추가:
+```yaml
+- uses: actions/checkout@v3
+  with:
+    fetch-depth: 0
+    ref: ${{ github.event.pull_request.head.sha }}  # PR의 헤드를 명시적으로 체크아웃
+
+- name: Fetch all branches
+  run: |
+    git fetch --all
+    git fetch origin +refs/heads/*:refs/remotes/origin/*
+```
+
+2. 기본 브랜치가 `main`이 아닌 경우 해당 브랜치 이름을 환경 변수로 설정:
+```yaml
+env:
+  BASE_BRANCH: develop  # 또는 master, production 등
+```
+
+### 특수 브랜치 전략 문제
+
+**증상:** 특정 브랜치 전략(Git Flow, GitHub Flow 등)을 사용할 때 워크플로우가 올바르게 작동하지 않습니다.
+
+**해결 방법:**
+1. 브랜치 명명 규칙이 일관되게 적용되었는지 확인합니다.
+2. PR이 올바른 브랜치 간에 생성되었는지 확인합니다(예: feature -> develop, develop -> main).
+3. 위의 브랜치 참조 오류 해결 방법을 적용합니다. 
